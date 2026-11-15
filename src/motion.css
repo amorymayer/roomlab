@@ -1,0 +1,106 @@
+:root {
+  --glide-time: 240ms;
+}
+
+.project-nav {
+  --active-page: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  position: relative;
+  isolation: isolate;
+}
+.project-nav[data-page=studio] { --active-page: 1; }
+.project-nav[data-page=review] { --active-page: 2; }
+.project-nav::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 4px auto 4px 4px;
+  width: calc((100% - 16px) / 3);
+  border-radius: 999px;
+  transform: translateX(calc(var(--active-page) * (100% + 4px)));
+  background: var(--raised);
+  transition: transform var(--glide-time) var(--ease);
+}
+.project-nav a { justify-content: center; }
+.project-nav a[aria-current=page] { background: transparent; }
+
+.study-feedback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.study-feedback[data-state=error] .study-status { color: var(--bad); }
+.study-feedback[data-state=ready] .study-status { color: var(--accent); }
+.study-feedback .study-status { margin: 0; }
+.signal {
+  flex-shrink: 0;
+  width: 43px;
+  height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--field);
+  transition: border-color var(--glide-time) var(--ease);
+}
+.signal:is([data-state=ready], [data-state=searching]) { border-color: var(--active-edge); }
+.signal[data-state=error] { border-color: var(--bad); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .proposal-grid > .proposal-card {
+    animation: proposal-arrive 260ms var(--ease) both;
+    animation-delay: calc(var(--item-order, 0) * 45ms);
+  }
+  .blueprint .study-plan { animation: drawing-arrive 430ms var(--ease) both; }
+}
+@keyframes proposal-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes drawing-arrive {
+  from { opacity: .45; transform: translateY(5px); }
+}
+
+:root[data-glide] { view-transition-name: none; }
+:root[data-glide=page] main { view-transition-name: roomlab-page; }
+:root[data-glide=stage] .stage { view-transition-name: roomlab-stage; }
+:root[data-glide=desk] .studio-desk { view-transition-name: roomlab-desk; }
+
+::view-transition-group(roomlab-page),
+::view-transition-group(roomlab-stage),
+::view-transition-group(roomlab-desk) {
+  animation-duration: var(--glide-time);
+  animation-timing-function: var(--ease);
+}
+::view-transition-old(roomlab-page),
+::view-transition-old(roomlab-stage),
+::view-transition-old(roomlab-desk) { animation: glide-out 130ms ease-out both; }
+::view-transition-new(roomlab-page) { animation: page-glide-in var(--glide-time) var(--ease) both; }
+::view-transition-new(roomlab-stage),
+::view-transition-new(roomlab-desk) { animation: glide-in 190ms var(--ease) both; }
+@keyframes glide-out { to { opacity: 0; } }
+@keyframes glide-in { from { opacity: 0; } }
+@keyframes page-glide-in { from { opacity: 0; transform: translateY(9px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .project-nav::before, .signal { transition: none; }
+}
+@media print {
+  .study-feedback { display: none; }
+}
+
+::view-transition { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  :root { scroll-behavior: smooth; }
+  .share-dialog[open] { animation: dialog-glide-in 200ms var(--ease) both; }
+  .share-dialog[open]::backdrop { animation: glide-in 200ms var(--ease) both; }
+}
+@keyframes dialog-glide-in {
+  from { opacity: 0; transform: translateY(7px) scale(.98); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .palettes button, .desk-tabs button {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+}
